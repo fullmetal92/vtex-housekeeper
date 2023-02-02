@@ -15,7 +15,7 @@ export type FormProps = {
   appToken: string;
   utmSource: string;
   utmCampaign: string;
-  requestsPerSecond: string;
+  batchSize: number;
 };
 
 export default function Home() {

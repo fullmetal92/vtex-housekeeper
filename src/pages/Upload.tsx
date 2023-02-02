@@ -28,7 +28,7 @@ const columns = [
     name: "couponCode",
     label: "Coupon Code",
     options: {
-      filter: true,
+      filter: false,
       sort: true,
     },
   },
@@ -75,24 +75,6 @@ async function createCoupon(endpointUrl: string, appKey: string, appToken: strin
   })
     .then((res) => res.data)
     .catch((err) => console.log(err.message));
-}
-
-async function buildCouponCodeConfiguration(props: any, couponCodes: any) {
-  let couponConfigurations = [];
-  for (let couponCode of couponCodes) {
-    couponConfigurations.push({
-      quantity: 1,
-      couponConfiguration: {
-        utmSource: props.formValues.utmSource,
-        utmCampaign: props.formValues.utmCampaign,
-        couponCode: couponCode[0].trim(),
-        isArchived: false,
-        maxItemsPerClient: 1,
-        expirationIntervalPerUse: "00:00:00",
-      },
-    });
-  }
-  return couponConfigurations;
 }
 
 // Inspired by the former Facebook spinners.
@@ -156,22 +138,23 @@ export default function Upload(props: UploadProps) {
     if (files && files.length > 0) {
       parseFile(files[0]).then(async (results: any) => {
         const totalRecords = results.length;
-        const couponData: any = chunk(results, 500);
+        const batchSize = props.formValues.batchSize | 1000;
+        const couponData: any = chunk(results, batchSize);
 
         let processedRecords: Data[] = [];
         let processedRecordCount = 0;
 
-        for (let couponCodes of couponData) {
+        for (let rows of couponData) {
           let couponConfigurations = [];
 
           // Build coupon batch
-          for (let couponCode of couponCodes) {
+          for (let row of rows) {
             couponConfigurations.push({
               quantity: 1,
               couponConfiguration: {
                 utmSource: props.formValues.utmSource,
                 utmCampaign: props.formValues.utmCampaign,
-                couponCode: couponCode[0].trim(),
+                couponCode: row[0].trim(),
                 isArchived: false,
                 maxItemsPerClient: 1,
                 expirationIntervalPerUse: "00:00:00",

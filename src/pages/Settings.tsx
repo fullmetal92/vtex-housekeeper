@@ -1,10 +1,13 @@
 import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Alert, Button, Divider, Drawer, Grid, Snackbar, Typography } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 import { Box } from "@mui/system";
 import * as React from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { FormProps } from ".";
+
+const drawerWidth = 400;
 
 export default function Settings({
   setConfigAvailable,
@@ -38,9 +41,16 @@ export default function Settings({
     setSnackbarOpen(false);
   };
 
+  const onDownload = () => {
+    const link = document.createElement("a");
+    link.download = `template.csv`;
+    link.href = "./template.csv";
+    link.click();
+  };
+
   const settingsList = () => (
     <Box sx={{ width: "100%" }}>
-      <Box sx={{ width: 400, p: 2, my: 2, borderRadius: 2 }}>
+      <Box sx={{ p: 2, my: 2, borderRadius: 2 }}>
         <CloseIcon
           style={{
             cursor: "pointer",
@@ -68,8 +78,8 @@ export default function Settings({
             <TextFieldElement
               name="accountName"
               label="Account Name"
-              helperText="*.myvtex.com"
-              style={{ width: "100%", marginTop: "2rem" }}
+              helperText=".myvtex.com"
+              style={{ width: "100%", marginTop: "1rem" }}
               required
             />
 
@@ -91,12 +101,21 @@ export default function Settings({
 
             <Divider style={{ marginTop: "1.5rem" }} />
 
+            <Typography
+              style={{ fontWeight: "400", fontStyle: "italic" }}
+              mt={1}
+              variant="caption"
+              display="block"
+              gutterBottom
+            >
+              Advanced settings (overrides default settings)
+            </Typography>
+
             <TextFieldElement
               name="utmSource"
               label="UTM Source"
               helperText="utm_source"
-              style={{ width: "100%", marginTop: "2rem" }}
-              required
+              style={{ width: "100%", marginTop: "1rem" }}
             />
 
             <TextFieldElement
@@ -107,9 +126,10 @@ export default function Settings({
             />
 
             <TextFieldElement
-              name="requestsPerSecond"
-              label="Requests Per Second"
-              helperText="requestsPerSecond"
+              name="batchSize"
+              label="Batch Size"
+              type="number"
+              helperText="Batch Size (default is 1000)"
               style={{ width: "100%", marginTop: "2rem" }}
             />
 
@@ -150,10 +170,30 @@ export default function Settings({
         justifyContent: "flex-end",
       }}
     >
-      <Button variant="outlined" color="secondary" onClick={handleDrawerOpen} startIcon={<SettingsIcon />}>
+      <Button variant="outlined" color="primary" onClick={onDownload} startIcon={<DownloadIcon />}>
+        Download Template
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        style={{ marginLeft: "1rem" }}
+        onClick={handleDrawerOpen}
+        startIcon={<SettingsIcon />}
+      >
         Settings
       </Button>
-      <Drawer anchor="right" open={open} variant="persistent">
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+          },
+        }}
+        anchor="right"
+        open={open}
+        variant="temporary"
+      >
         {settingsList()}
       </Drawer>
     </Grid>

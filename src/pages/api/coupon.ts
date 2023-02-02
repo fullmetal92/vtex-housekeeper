@@ -16,11 +16,6 @@ export default async function handler(
         const appToken = req.body.appToken.trim();
         const payload = req.body.payload;
 
-        // console.log(`Endpoint Url: ${url}`);
-        // console.log(`AppKey: ${appKey}`)
-        // console.log(`AppToken: ${appToken}`)
-        // console.log(JSON.stringify(payload));
-
         const response = await axios.post(url, payload, {
             withCredentials: false,
             headers: {
