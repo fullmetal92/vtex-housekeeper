@@ -18,12 +18,21 @@ type UploadProps = {
 };
 
 type Data = {
+  index: number;
   couponCode: string;
   utmSource: string;
   utmCampaign: string;
 };
 
 const columns = [
+  {
+    name: "index",
+    label: "Index",
+    options: {
+      filter: false,
+      sort: true,
+    },
+  },
   {
     name: "couponCode",
     label: "Coupon Code",
@@ -126,6 +135,17 @@ function parseFile(file: File) {
   });
 }
 
+function mask(text: string, length: number) {
+  if (text.length <= length) {
+    return text;
+  } else {
+    var masked =
+      text.substring(0, text.length - length).replace(/[a-z\d]/gi, "#") +
+      text.substring(text.length - length, text.length);
+    return masked;
+  }
+}
+
 export default function Upload(props: UploadProps) {
   const [files, setFiles] = React.useState<File[]>([]);
   const [data, setData] = React.useState<Data[]>([]);
@@ -143,6 +163,7 @@ export default function Upload(props: UploadProps) {
 
         let processedRecords: Data[] = [];
         let processedRecordCount = 0;
+        let index = 0;
 
         for (let rows of couponData) {
           let couponConfigurations = [];
@@ -175,7 +196,9 @@ export default function Upload(props: UploadProps) {
           processedRecordCount = processedRecordCount + response.length;
 
           for (let item of response) {
+            index++;
             processedRecords.push({
+              index: index,
               couponCode: item,
               utmSource: props.formValues.utmSource,
               utmCampaign: props.formValues.utmCampaign,
@@ -244,7 +267,12 @@ export default function Upload(props: UploadProps) {
         >
           <Grid item>
             {files.length < 1 && (
-              <FileUpload value={files} onChange={handleFilesChange} disabled={!props.isConfigAvailable} />
+              <FileUpload
+                title="Drag 'n' drop a CSV file here, or click to select a file"
+                value={files}
+                onChange={handleFilesChange}
+                disabled={!props.isConfigAvailable}
+              />
             )}
             {!props.formValues && files.length < 1 && (
               <Typography style={{ fontWeight: "500" }} mt={2} variant="caption" display="block" gutterBottom>
@@ -254,6 +282,11 @@ export default function Upload(props: UploadProps) {
             {props.formValues && (
               <Typography style={{ fontWeight: "400" }} mt={2} variant="caption" display="block" gutterBottom>
                 Account: <span style={{ fontWeight: "bold" }}>{props.formValues.accountName}.myvtex.com</span>
+              </Typography>
+            )}
+            {props.formValues && (
+              <Typography style={{ fontWeight: "400" }} mt={1} variant="caption" display="block" gutterBottom>
+                App Key: <span style={{ fontWeight: "bold" }}>{mask(props.formValues.appKey, 6)}</span>
               </Typography>
             )}
           </Grid>

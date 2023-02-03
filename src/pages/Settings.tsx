@@ -48,9 +48,13 @@ export default function Settings({
 
   React.useEffect(() => {
     sessionStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(storedAppSettings));
-    if (storedAppSettings) {
+    if (Object.keys(storedAppSettings).length !== 0) {
+      console.log("00000");
       setFormValues(storedAppSettings);
       setConfigAvailable(true);
+    } else {
+      setConfigAvailable(false);
+      setFormValues(null);
     }
   }, [storedAppSettings]);
 
@@ -164,7 +168,7 @@ export default function Settings({
           </div>
         </FormContainer>
 
-        <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={onSnackbarAutoHide}>
+        <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={onSnackbarAutoHide}>
           <Alert severity="success" sx={{ width: "100%" }}>
             Configuration Settings Saved!
           </Alert>
@@ -181,7 +185,13 @@ export default function Settings({
         justifyContent: "flex-end",
       }}
     >
-      <Button variant="outlined" color="primary" onClick={onDownload} startIcon={<DownloadIcon />}>
+      <Button
+        style={{ marginLeft: "1rem" }}
+        variant="outlined"
+        color="primary"
+        onClick={onDownload}
+        startIcon={<DownloadIcon />}
+      >
         Download Template
       </Button>
       <Button
