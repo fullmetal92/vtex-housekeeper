@@ -18,7 +18,11 @@ export default function Settings({
   isConfigAvailable?: boolean;
   setFormValues: any;
 }) {
+  const APP_SETTINGS_KEY = "AppSettings";
   const [open, setOpen] = React.useState(false);
+  const [storedAppSettings, setStoredAppSettings] = React.useState(
+    typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem(APP_SETTINGS_KEY) || "{}") : {}
+  );
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -31,6 +35,7 @@ export default function Settings({
 
   const onApplicationSettingsSave = (data: FormProps) => {
     setFormValues(data);
+    setStoredAppSettings(data);
     if (data.accountName && data.appKey && data.appToken) {
       setConfigAvailable(true);
       setSnackbarOpen(true);
@@ -40,6 +45,14 @@ export default function Settings({
   const onSnackbarAutoHide = () => {
     setSnackbarOpen(false);
   };
+
+  React.useEffect(() => {
+    sessionStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(storedAppSettings));
+    if (storedAppSettings) {
+      setFormValues(storedAppSettings);
+      setConfigAvailable(true);
+    }
+  }, [storedAppSettings]);
 
   const onDownload = () => {
     const link = document.createElement("a");
@@ -73,13 +86,23 @@ export default function Settings({
           Application Configuration
         </Typography>
 
-        <FormContainer onSuccess={onApplicationSettingsSave}>
+        <Typography
+          style={{ fontWeight: "600", fontStyle: "italic" }}
+          mt={1}
+          variant="caption"
+          display="block"
+          gutterBottom
+        >
+          Note: Settings are only saved locally in session storage and are not saved on the server.
+        </Typography>
+
+        <FormContainer defaultValues={storedAppSettings} onSuccess={onApplicationSettingsSave}>
           <div>
             <TextFieldElement
               name="accountName"
               label="Account Name"
               helperText=".myvtex.com"
-              style={{ width: "100%", marginTop: "1rem" }}
+              style={{ width: "100%", marginTop: "2rem" }}
               required
             />
 
@@ -99,23 +122,11 @@ export default function Settings({
               required
             />
 
-            <Divider style={{ marginTop: "1.5rem" }} />
-
-            <Typography
-              style={{ fontWeight: "400", fontStyle: "italic" }}
-              mt={1}
-              variant="caption"
-              display="block"
-              gutterBottom
-            >
-              Advanced settings (overrides default settings)
-            </Typography>
-
             <TextFieldElement
               name="utmSource"
               label="UTM Source"
               helperText="utm_source"
-              style={{ width: "100%", marginTop: "1rem" }}
+              style={{ width: "100%", marginTop: "2rem" }}
             />
 
             <TextFieldElement
